@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'login_screen.dart';
 import 'home_screen.dart';
 
 class LandingPageScreen extends StatefulWidget {
@@ -54,16 +55,17 @@ class _LandingPageScreenState extends State<LandingPageScreen>
   }
 
   void _enter() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 500),
-        pageBuilder: (_, anim, __) => FadeTransition(
-          opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
-          child: const HomeScreen(),
-        ),
+  final user = Supabase.instance.client.auth.currentUser;
+  Navigator.of(context).pushReplacement(
+    PageRouteBuilder(
+      transitionDuration: const Duration(milliseconds: 500),
+      pageBuilder: (_, anim, __) => FadeTransition(
+        opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
+        child: user != null ? const HomeScreen() : const LoginScreen(),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
