@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'landingpage_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -56,6 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
+      // 1. Daftarkan user ke sistem Auth Supabase
       final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
@@ -65,25 +65,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
 
       if (response.user != null) {
-        // Simpan ke tabel users jika ada
+        // 2. Simpan ke tabel kustom users (Gunakan Service Role / biarkan masuk jika RLS mengizinkan profile creation)
         try {
           await Supabase.instance.client.from('users').insert({
             'id': response.user!.id,
             'email': email,
             'name': name,
+            'role': 'authenticated', // Sesuaikan dengan kolom role di ERD kamu
           });
-        } catch (_) {
-          // tabel users mungkin pakai struktur berbeda, skip saja
+        } catch (dbError) {
+          // Tetap tangkap log error untuk debugging internal jika RLS memblokir
+          debugPrint('Gagal menyimpan profil ke tabel users: $dbError');
         }
 
-        _showSnackBar('Akun berhasil dibuat!');
-        await Future.delayed(const Duration(milliseconds: 800));
+        // 3. Alur Navigasi yang Benar: Minta user verifikasi, lalu kembalikan ke layar Login
+        _showSnackBar('Registrasi berhasil! Silakan cek email kamu untuk verifikasi.', isError: false);
+        
+        // Beri waktu 2.5 detik agar user sempat membaca SnackBar petunjuk verifikasi email
+        await Future.delayed(const Duration(milliseconds: 2500));
+        
         if (!mounted) return;
-         Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const LandingPageScreen()),
-          (route) => false,
-          );
+        
+        // Menutup RegisterScreen dan kembali ke LoginScreen
+        Navigator.pop(context); 
       }
     } on AuthException catch (e) {
       _showSnackBar(e.message, isError: true);

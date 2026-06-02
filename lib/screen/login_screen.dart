@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'register_screen.dart';
-import 'landingpage_screen.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
