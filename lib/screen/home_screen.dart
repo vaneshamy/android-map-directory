@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../services/supabase_service.dart';
 import '../models/category_model.dart';
@@ -540,7 +541,7 @@ class _HomeTab extends StatelessWidget {
                   place: places[index],
                   index: index,
                   animCtrl: parent._animationController,
-                  onTap: () {
+                  onTap: () async {
                     final user =
                         Supabase.instance.client.auth.currentUser;
 
@@ -552,13 +553,49 @@ class _HomeTab extends StatelessWidget {
                         ),
                       );
                     } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              DetailScreen(place: places[index]),
+                      // 1. Munculkan loading kecil saat aplikasi mencari koordinat GPS HP
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC8A96B)),
+                          ),
                         ),
                       );
+
+                      try {
+                        // 2. Ambil koordinat GPS HP real-time secara asinkronus
+                        Position position = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.high,
+                        );
+
+                        // 3. Tutup loading dialog setelah GPS aman didapatkan
+                        if (context.mounted) Navigator.pop(context);
+
+                        // 4. Pindah ke DetailScreen dengan oper data GPS asli
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => DetailScreen(
+                                place: places[index],
+                                userLocation: LatLng(position.latitude, position.longitude),
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        // Tutup loading jika pencarian GPS gagal atau time out
+                        if (context.mounted) Navigator.pop(context);
+                        debugPrint("Gagal menangkap lokasi GPS: $e");
+                        
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Gagal mendeteksi lokasi GPS aktif Anda.")),
+                          );
+                        }
+                      }
                     }
                   },
                 ),

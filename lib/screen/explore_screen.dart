@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' as maps;
 
 import '../services/supabase_service.dart';
 import '../models/place_model.dart';
@@ -484,11 +485,25 @@ class _ExploreScreenState extends State<ExploreScreen>
       right: 16,
       bottom: MediaQuery.of(context).padding.bottom + 24,
       child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => DetailScreen(place: p)),
+  onTap: () {
+    // 1. Ambil latitude & longitude secara dinamis dari posisi user/default
+    final double lat = _userPos != null ? _userPos!.latitude : _defaultCenter.latitude;
+    final double lng = _userPos != null ? _userPos!.longitude : _defaultCenter.longitude;
+
+    // 2. Bungkus ke dalam kelas LatLng milik google_maps_flutter secara eksplisit
+    final googleMapsLatLng = maps.LatLng(lat, lng);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailScreen(
+          place: p,
+          userLocation: googleMapsLatLng, // Sekarang tipenya sudah cocok!
         ),
-        child: Container(
+      ),
+    );
+  },
+  child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
