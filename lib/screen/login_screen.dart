@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'register_screen.dart';
+import 'admin_dashboard_screen.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
+Future<void> _login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -40,20 +41,52 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
+      // 1. Proses Autentikasi Utama ke Supabase Auth
+      final AuthResponse response = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
+      final sessionUser = response.user;
+      if (sessionUser == null) throw const AuthException('Pengguna tidak ditemukan');
+
+      // 2. Tarik data kustom dari tabel 'public.users' untuk memeriksa kolom 'role' (Sesuai ERD)
+      final userData = await Supabase.instance.client
+          .from('users')
+          .select('role') // Kita hanya butuh field role saja agar efisien
+          .eq('id', sessionUser.id)
+          .single(); // Mengambil satu baris data objek JSON
+
       if (!mounted) return;
-      Navigator.pushReplacement(
-      context,
-     MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+
+      final String? role = userData['role'] as String?;
+
+      // 3. Logika Percabangan / Routing Berdasarkan Hak Akses Role
+      if (role == 'admin') {
+        _showSnackBar('Login sukses sebagai Admin!');
+        
+        // Menuju Dashboard Admin (CRUD Places)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+        );
+      } else {
+        _showSnackBar('Selamat Datang di Museum Nusantara!');
+        
+        // Menuju Dashboard User Biasa (Home Screen Direktori)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+
     } on AuthException catch (e) {
+      // Menangkap error autentikasi bawaan Supabase (password salah, email tidak terdaftar)
       _showSnackBar(e.message, isError: true);
     } catch (e) {
-      _showSnackBar('Terjadi kesalahan, coba lagi', isError: true);
+      // Menangkap error jika tabel kustom bermasalah
+      debugPrint('Error Role Checking: $e');
+      _showSnackBar('Gagal memproses hak akses akun Anda.', isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

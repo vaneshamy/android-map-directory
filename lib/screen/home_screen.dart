@@ -801,7 +801,7 @@ class _LocationBottomSheet extends StatelessWidget {
         24,
         16,
         24,
-        MediaQuery.of(context).padding.bottom + 28,
+        MediaQuery.of(context).padding.bottom + 16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -838,7 +838,7 @@ class _LocationBottomSheet extends StatelessWidget {
               height: 1.7,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -859,9 +859,11 @@ class _LocationBottomSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           GestureDetector(
             onTap: onSkip,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
             child: Text(
               'Lewati',
               style: GoogleFonts.dmSans(
@@ -870,6 +872,7 @@ class _LocationBottomSheet extends StatelessWidget {
               ),
             ),
           ),
+          )
         ],
       ),
     );
