@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../services/supabase_service.dart';
 import '../models/category_model.dart';
@@ -580,7 +580,7 @@ class _HomeTab extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (_) => DetailScreen(
                                 place: places[index],
-                                userLocation: LatLng(position.latitude, position.longitude),
+                               userLocation: LatLng(position.latitude, position.longitude),
                               ),
                             ),
                           );

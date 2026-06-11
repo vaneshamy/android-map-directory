@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class MapScreen extends StatefulWidget {
   final dynamic place;
-  final LatLng userLocation;
+  final LatLng userLocation; // Menggunakan LatLng dari latlong2
 
   const MapScreen({
     super.key,
@@ -18,25 +19,22 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  Set<Polyline> _polylines = {};
-  List<LatLng> polylineCoordinates = [];
+  List<LatLng> routePoints = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _getRoutePolyline();
+    _getRoute();
   }
 
-  Future<void> _getRoutePolyline() async {
+  Future<void> _getRoute() async {
     final double userLat = widget.userLocation.latitude;
     final double userLng = widget.userLocation.longitude;
-    
-    // Ambil lat & lng museum secara aman dari objek model
     final double museumLat = double.tryParse(widget.place.lat.toString()) ?? 0.0;
     final double museumLng = double.tryParse(widget.place.lng.toString()) ?? 0.0;
 
-    // Menggunakan OSRM Router API Gratisan untuk menggambar garis rute jalan
+    // Mengambil rute dari API OSRM gratis
     final String url = 'https://router.project-osrm.org/route/v1/driving/$userLng,$userLat;$museumLng,$museumLat?geometries=geojson';
 
     try {
@@ -46,23 +44,12 @@ class _MapScreenState extends State<MapScreen> {
         final List<dynamic> coordinates = data['routes'][0]['geometry']['coordinates'];
 
         setState(() {
-          polylineCoordinates.clear();
-          for (var coord in coordinates) {
-            polylineCoordinates.add(LatLng(coord[1], coord[0]));
-          }
-          _polylines.add(
-            Polyline(
-              polylineId: const PolylineId('route_to_museum'),
-              points: polylineCoordinates,
-              color: Colors.blueAccent,
-              width: 6,
-            ),
-          );
+          routePoints = coordinates.map((coord) => LatLng(coord[1], coord[0])).toList();
           _isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint("Gagal memuat polylines rute OSRM: $e");
+      debugPrint("Gagal mengambil rute OSRM: $e");
       setState(() { _isLoading = false; });
     }
   }
@@ -81,28 +68,45 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: widget.userLocation,
-              zoom: 13,
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: widget.userLocation,
+              initialZoom: 13.0,
             ),
-            polylines: _polylines,
-            markers: {
-              // Marker posisi HP User (Biru)
-              Marker(
-                markerId: const MarkerId('user_position'),
-                position: widget.userLocation,
-                infoWindow: const InfoWindow(title: 'Lokasi Saya'),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.museum.nusantara',
               ),
-              // Marker posisi lokasi Museum (Merah)
-              Marker(
-                markerId: const MarkerId('museum_position'),
-                position: museumLocation,
-                infoWindow: InfoWindow(title: widget.place.name ?? 'Museum'),
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+              if (routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: routePoints,
+                      color: Colors.blueAccent,
+                      strokeWidth: 5.0,
+                    ),
+                  ],
+                ),
+              MarkerLayer(
+                markers: [
+                  // Marker User (Biru)
+                  Marker(
+                    point: widget.userLocation,
+                    width: 40,
+                    height: 40,
+                    child: const Icon(Icons.my_location, color: Colors.blue, size: 30),
+                  ),
+                  // Marker Museum (Merah)
+                  Marker(
+                    point: museumLocation,
+                    width: 40,
+                    height: 40,
+                    child: const Icon(Icons.location_on, color: Colors.red, size: 35),
+                  ),
+                ],
               ),
-            },
+            ],
           ),
           if (_isLoading)
             const Center(
