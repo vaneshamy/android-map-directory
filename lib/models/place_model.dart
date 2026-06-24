@@ -46,7 +46,8 @@ class PlaceModel {
     );
   }
 
-  String get ratingText => rating != null ? rating!.toStringAsFixed(1) : '4.5';
+  // DIUBAH: Tidak lagi hardcode '4.5'. Menampilkan rata-rata asli atau '-' jika belum ada ulasan.
+  String get ratingText => (rating != null && rating! > 0) ? rating!.toStringAsFixed(1) : '-';
 
   String get distanceText {
     if (distanceKm == null) return '';

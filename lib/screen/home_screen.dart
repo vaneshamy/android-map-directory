@@ -22,8 +22,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final SupabaseService _supabaseService = SupabaseService();
   final TextEditingController _searchCtrl = TextEditingController();
 
@@ -37,24 +36,20 @@ class _HomeScreenState extends State<HomeScreen>
 
   late AnimationController _animationController;
 
-  // PERUBAHAN: getter agar rebuild otomatis saat setState
   List<Widget> get _pages => [
-    _HomeTab(parent: this),
-    const ExploreScreen(),
-    const ProfileScreen(),
-  ];
+        _HomeTab(parent: this),
+        const ExploreScreen(),
+        const ProfileScreen(),
+      ];
 
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 700),
       vsync: this,
     )..forward();
-
     _fetchData();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showLocationPermissionDialog();
     });
@@ -87,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _showLocationPermissionDialog() async {
     if (_locationChecked) return;
     _locationChecked = true;
-
     await showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -105,9 +99,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _requestLocation() async {
     if (!await Geolocator.isLocationServiceEnabled()) return;
-
     var permission = await Geolocator.checkPermission();
-
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
@@ -116,7 +108,6 @@ class _HomeScreenState extends State<HomeScreen>
   List<PlaceModel> _filterPlaces(List<PlaceModel> places) {
     return places.where((place) {
       final q = _searchQuery.toLowerCase();
-
       return q.isEmpty ||
           place.name.toLowerCase().contains(q) ||
           place.address.toLowerCase().contains(q) ||
@@ -126,19 +117,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-      ),
-    );
-
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ));
     return Scaffold(
       backgroundColor: const Color(0xFFF8F5F0),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
@@ -147,12 +132,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: Color(0xFFE0D7CA),
-            width: 0.5,
-          ),
-        ),
+        border: Border(top: BorderSide(color: Color(0xFFE0D7CA), width: 0.5)),
       ),
       child: SafeArea(
         top: false,
@@ -165,31 +145,19 @@ class _HomeScreenState extends State<HomeScreen>
                 icon: Icons.home_rounded,
                 label: 'Home',
                 active: _selectedIndex == 0,
-                onTap: () {
-                  setState(() {
-                    _selectedIndex = 0;
-                  });
-                },
+                onTap: () => setState(() => _selectedIndex = 0),
               ),
               _NavItem(
                 icon: Icons.map_rounded,
                 label: 'Explore',
                 active: _selectedIndex == 1,
-                onTap: () {
-                  setState(() {
-                    _selectedIndex = 1;
-                  });
-                },
+                onTap: () => setState(() => _selectedIndex = 1),
               ),
               _NavItem(
                 icon: Icons.person_outline_rounded,
                 label: 'Profil',
                 active: _selectedIndex == 2,
-                onTap: () {
-                  setState(() {
-                    _selectedIndex = 2;
-                  });
-                },
+                onTap: () => setState(() => _selectedIndex = 2),
               ),
             ],
           ),
@@ -199,12 +167,12 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+// HOME TAB
+// ══════════════════════════════════════════════════════════════
 class _HomeTab extends StatelessWidget {
   final _HomeScreenState parent;
-
-  const _HomeTab({
-    required this.parent,
-  });
+  const _HomeTab({required this.parent});
 
   @override
   Widget build(BuildContext context) {
@@ -218,9 +186,7 @@ class _HomeTab extends StatelessWidget {
           _buildCategories(),
           _buildCountBar(),
           _buildList(context),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
@@ -234,35 +200,30 @@ class _HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Text(
+              'Museum Nusantara',
+              style: GoogleFonts.cormorantGaramond(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A1614),
+                  height: 1),
+            ),
+            const SizedBox(height: 8),
+            Row(
               children: [
-                Text(
-                  'Museum Nusantara',
-                  style: GoogleFonts.cormorantGaramond(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1614),
-                    height: 1,
-                  ),
+                Container(width: 32, height: 0.5, color: const Color(0xFFC8A96B)),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Text('✦', style: TextStyle(color: Color(0xFFC8A96B), fontSize: 8)),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(width: 32, height: 0.5, color: const Color(0xFFC8A96B)),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
-                      child: Text('✦', style: TextStyle(color: Color(0xFFC8A96B), fontSize: 8)),
-                    ),
-                    Container(width: 32, height: 0.5, color: const Color(0xFFC8A96B)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Direktori museum bersejarah di Jawa Timur',
-                  style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF7A6F65), height: 1.6),
-                ),
+                Container(width: 32, height: 0.5, color: const Color(0xFFC8A96B)),
               ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Direktori museum bersejarah di Jawa Timur',
+              style: GoogleFonts.dmSans(
+                  fontSize: 13, color: const Color(0xFF7A6F65), height: 1.6),
             ),
             const SizedBox(height: 18),
             Container(
@@ -291,10 +252,13 @@ class _HomeTab extends StatelessWidget {
                   children: [
                     Text('Explore Heritage',
                         style: GoogleFonts.cormorantGaramond(
-                            fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white)),
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
                     const SizedBox(height: 4),
                     Text('Temukan museum terbaik dan paling bersejarah',
-                        style: GoogleFonts.dmSans(fontSize: 12, color: Colors.white.withOpacity(0.9))),
+                        style: GoogleFonts.dmSans(
+                            fontSize: 12, color: Colors.white.withOpacity(0.9))),
                   ],
                 ),
               ),
@@ -332,9 +296,11 @@ class _HomeTab extends StatelessWidget {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: 'Cari museum atau kota...',
-                    hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFFB5AAA0)),
+                    hintStyle: GoogleFonts.dmSans(
+                        fontSize: 13, color: const Color(0xFFB5AAA0)),
                   ),
-                  style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF1A1614)),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 13, color: const Color(0xFF1A1614)),
                 ),
               ),
             ],
@@ -350,9 +316,7 @@ class _HomeTab extends StatelessWidget {
         future: parent._categoriesFuture,
         builder: (_, snapshot) {
           if (!snapshot.hasData) return const SizedBox(height: 60);
-
           final categories = snapshot.data!;
-
           return SizedBox(
             height: 50,
             child: ListView(
@@ -375,7 +339,9 @@ class _HomeTab extends StatelessWidget {
                       isSelected: parent._selectedCategory == category.id,
                       onTap: () {
                         parent._selectedCategory =
-                            parent._selectedCategory == category.id ? null : category.id;
+                            parent._selectedCategory == category.id
+                                ? null
+                                : category.id;
                         parent._reload();
                       },
                     ),
@@ -389,7 +355,10 @@ class _HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildChip({required String label, required bool isSelected, required VoidCallback onTap}) {
+  Widget _buildChip(
+      {required String label,
+      required bool isSelected,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -399,7 +368,9 @@ class _HomeTab extends StatelessWidget {
           borderRadius: BorderRadius.circular(100),
           color: isSelected ? const Color(0xFF1A1614) : Colors.white,
           border: Border.all(
-            color: isSelected ? const Color(0xFF1A1614) : const Color(0xFFE0D7CA),
+            color: isSelected
+                ? const Color(0xFF1A1614)
+                : const Color(0xFFE0D7CA),
           ),
         ),
         child: Text(
@@ -421,10 +392,13 @@ class _HomeTab extends StatelessWidget {
         child: FutureBuilder<List<PlaceModel>>(
           future: parent._placesFuture,
           builder: (_, snapshot) {
-            final count = snapshot.hasData ? parent._filterPlaces(snapshot.data!).length : 0;
+            final count = snapshot.hasData
+                ? parent._filterPlaces(snapshot.data!).length
+                : 0;
             return Text(
               '$count museum ditemukan',
-              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFFB5AAA0)),
+              style: GoogleFonts.dmSans(
+                  fontSize: 12, color: const Color(0xFFB5AAA0)),
             );
           },
         ),
@@ -437,7 +411,8 @@ class _HomeTab extends StatelessWidget {
       child: FutureBuilder<List<PlaceModel>>(
         future: parent._placesFuture,
         builder: (_, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) return _buildSkeleton();
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return _buildSkeleton();
           if (!snapshot.hasData || snapshot.data!.isEmpty) return _buildEmpty();
 
           final places = parent._filterPlaces(snapshot.data!);
@@ -451,55 +426,11 @@ class _HomeTab extends StatelessWidget {
                   place: places[index],
                   index: index,
                   animCtrl: parent._animationController,
-                  onTap: () async {
-                    final user = Supabase.instance.client.auth.currentUser;
-
-                    if (user == null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginScreen()),
-                      );
-                    } else {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => const Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC8A96B)),
-                          ),
-                        ),
-                      );
-
-                      try {
-                        Position position = await Geolocator.getCurrentPosition(
-                          desiredAccuracy: LocationAccuracy.high,
-                        );
-
-                        if (context.mounted) Navigator.pop(context);
-
-                        if (context.mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DetailScreen(
-                                place: places[index],
-                                userLocation: LatLng(position.latitude, position.longitude),
-                              ),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) Navigator.pop(context);
-                        debugPrint("Gagal menangkap lokasi GPS: $e");
-
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Gagal mendeteksi lokasi GPS aktif Anda.")),
-                          );
-                        }
-                      }
-                    }
-                  },
+                  // ── Tap kartu → buka DetailScreen biasa ──
+                  onTap: () => _navigateToDetail(context, places[index]),
+                  // ── Tap rating → buka DetailScreen langsung scroll ke review ──
+                  onTapRating: () =>
+                      _navigateToDetail(context, places[index], scrollToReview: true),
                 ),
               ),
             ),
@@ -507,6 +438,78 @@ class _HomeTab extends StatelessWidget {
         },
       ),
     );
+  }
+
+  // ── Helper navigasi ke DetailScreen (DIPERBAIKI) ──────────────────
+  Future<void> _navigateToDetail(
+    BuildContext context,
+    PlaceModel place, {
+    bool scrollToReview = false,
+  }) async {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFC8A96B)),
+        ),
+      ),
+    );
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      if (context.mounted) Navigator.pop(context);
+
+      if (context.mounted) {
+        // DIPERBAIKI: Menggunakan await agar fungsi menunggu sampai DetailScreen ditutup
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailScreen(
+              place: place,
+              userLocation: LatLng(position.latitude, position.longitude),
+              scrollToReview: scrollToReview, 
+            ),
+          ),
+        );
+        
+        // DIPERBAIKI: Reload data beranda (agar rating terupdate)
+        parent._reload();
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.pop(context);
+      debugPrint("Gagal menangkap lokasi GPS: $e");
+
+      if (context.mounted) {
+        // DIPERBAIKI: Menggunakan await 
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => DetailScreen(
+              place: place,
+              userLocation: const LatLng(-7.5360, 112.2384),
+              scrollToReview: scrollToReview,
+            ),
+          ),
+        );
+        
+        // DIPERBAIKI: Reload data beranda
+        parent._reload();
+      }
+    }
   }
 
   Widget _buildSkeleton() {
@@ -538,7 +541,9 @@ class _HomeTab extends StatelessWidget {
           Text(
             'Museum tidak ditemukan',
             style: GoogleFonts.cormorantGaramond(
-                fontSize: 22, fontWeight: FontWeight.w700, color: const Color(0xFF1A1614)),
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A1614)),
           ),
           const SizedBox(height: 6),
           Text(
@@ -551,18 +556,22 @@ class _HomeTab extends StatelessWidget {
   }
 }
 
-// PLACE CARD
+// ══════════════════════════════════════════════════════════════
+// PLACE CARD 
+// ══════════════════════════════════════════════════════════════
 class _PlaceCard extends StatelessWidget {
   final PlaceModel place;
   final int index;
   final AnimationController animCtrl;
   final VoidCallback onTap;
+  final VoidCallback onTapRating; 
 
   const _PlaceCard({
     required this.place,
     required this.index,
     required this.animCtrl,
     required this.onTap,
+    required this.onTapRating,
   });
 
   @override
@@ -578,8 +587,10 @@ class _PlaceCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Foto museum ──
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
               child: SizedBox(
                 height: 200,
                 width: double.infinity,
@@ -590,7 +601,8 @@ class _PlaceCard extends StatelessWidget {
                         placeholder: (_, __) => Container(
                           color: const Color(0xFFF4EFE8),
                           child: const Center(
-                            child: CircularProgressIndicator(color: Color(0xFFC8A96B)),
+                            child: CircularProgressIndicator(
+                                color: Color(0xFFC8A96B)),
                           ),
                         ),
                         errorWidget: (_, __, ___) => _placeholder(),
@@ -598,25 +610,35 @@ class _PlaceCard extends StatelessWidget {
                     : _placeholder(),
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Nama museum ──
                   Text(
                     place.name,
                     style: GoogleFonts.cormorantGaramond(
-                        fontSize: 25, fontWeight: FontWeight.w700, color: const Color(0xFF1A1614)),
+                        fontSize: 25,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1A1614)),
                   ),
                   const SizedBox(height: 8),
+
+                  // ── Alamat ──
                   Row(
                     children: [
-                      const Icon(Icons.location_on_rounded, size: 14, color: Color(0xFFC8A96B)),
+                      const Icon(Icons.location_on_rounded,
+                          size: 14, color: Color(0xFFC8A96B)),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
-                          place.city != null ? '${place.city} • ${place.address}' : place.address,
-                          style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A6F65)),
+                          place.city != null
+                              ? '${place.city} • ${place.address}'
+                              : place.address,
+                          style: GoogleFonts.dmSans(
+                              fontSize: 12, color: const Color(0xFF7A6F65)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -624,18 +646,57 @@ class _PlaceCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 14),
+
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, size: 16, color: Color(0xFFC8A96B)),
-                      const SizedBox(width: 4),
-                      Text(
-                        place.ratingText,
-                        style: GoogleFonts.dmSans(
-                            fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF1A1614)),
+                      // ── Rating ──────────────────
+                      GestureDetector(
+                        onTap: onTapRating,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8EC),
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(
+                                color: const Color(0xFFC8A96B).withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.star_rounded,
+                                  size: 15, color: Color(0xFFC8A96B)),
+                              const SizedBox(width: 4),
+                              Text(
+                                place.ratingText,
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF1A1614)),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Lihat ulasan',
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 10,
+                                    color: const Color(0xFFC8A96B),
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(width: 2),
+                              const Icon(Icons.chevron_right_rounded,
+                                  size: 14, color: Color(0xFFC8A96B)),
+                            ],
+                          ),
+                        ),
                       ),
+                      // ─────────────────────────────────────────
+
                       const Spacer(),
+
+                      // ── Tombol Lihat Detail ──
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: const Color(0xFF1A1614),
                           borderRadius: BorderRadius.circular(100),
@@ -643,7 +704,9 @@ class _PlaceCard extends StatelessWidget {
                         child: Text(
                           'Lihat Detail',
                           style: GoogleFonts.dmSans(
-                              fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white),
                         ),
                       ),
                     ],
@@ -660,12 +723,16 @@ class _PlaceCard extends StatelessWidget {
   Widget _placeholder() {
     return Container(
       color: const Color(0xFFF4EFE8),
-      child: Center(child: Icon(Icons.museum_rounded, size: 60, color: Colors.grey.shade300)),
+      child: Center(
+          child: Icon(Icons.museum_rounded,
+              size: 60, color: Colors.grey.shade300)),
     );
   }
 }
 
+// ══════════════════════════════════════════════════════════════
 // LOCATION BOTTOM SHEET
+// ══════════════════════════════════════════════════════════════
 class _LocationBottomSheet extends StatelessWidget {
   final VoidCallback onAllow;
   final VoidCallback onSkip;
@@ -679,36 +746,46 @@ class _LocationBottomSheet extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(context).padding.bottom + 16),
+      padding: EdgeInsets.fromLTRB(
+          24, 16, 24, MediaQuery.of(context).padding.bottom + 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40, height: 4,
-            decoration: BoxDecoration(color: const Color(0xFFE0D7CA), borderRadius: BorderRadius.circular(10)),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+                color: const Color(0xFFE0D7CA),
+                borderRadius: BorderRadius.circular(10)),
           ),
           const SizedBox(height: 20),
-          const Icon(Icons.location_on_rounded, size: 46, color: Color(0xFFC8A96B)),
+          const Icon(Icons.location_on_rounded,
+              size: 46, color: Color(0xFFC8A96B)),
           const SizedBox(height: 18),
           Text('Aktifkan Lokasi',
-              style: GoogleFonts.cormorantGaramond(fontSize: 28, fontWeight: FontWeight.w700)),
+              style: GoogleFonts.cormorantGaramond(
+                  fontSize: 28, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           Text(
             'Museum Nusantara membutuhkan akses lokasi untuk menampilkan museum terdekat.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF7A6F65), height: 1.7),
+            style: GoogleFonts.dmSans(
+                fontSize: 13, color: const Color(0xFF7A6F65), height: 1.7),
           ),
           const SizedBox(height: 20),
           SizedBox(
-            width: double.infinity, height: 50,
+            width: double.infinity,
+            height: 50,
             child: ElevatedButton(
               onPressed: onAllow,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1A1614),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
               child: Text('Izinkan Lokasi',
-                  style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white)),
+                  style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700, color: Colors.white)),
             ),
           ),
           const SizedBox(height: 14),
@@ -717,7 +794,8 @@ class _LocationBottomSheet extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Text('Lewati',
-                  style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFFB5AAA0))),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 12, color: const Color(0xFFB5AAA0))),
             ),
           ),
         ],
@@ -726,14 +804,20 @@ class _LocationBottomSheet extends StatelessWidget {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
 // NAV ITEM
+// ══════════════════════════════════════════════════════════════
 class _NavItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool active;
   final VoidCallback onTap;
 
-  const _NavItem({required this.icon, required this.label, required this.active, required this.onTap});
+  const _NavItem(
+      {required this.icon,
+      required this.label,
+      required this.active,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -745,14 +829,21 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 22, color: active ? const Color(0xFFC8A96B) : Colors.grey[400]),
+            Icon(icon,
+                size: 22,
+                color: active
+                    ? const Color(0xFFC8A96B)
+                    : Colors.grey[400]),
             const SizedBox(height: 3),
             Text(
               label,
               style: GoogleFonts.dmSans(
                 fontSize: 10,
-                fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-                color: active ? const Color(0xFFC8A96B) : Colors.grey[400],
+                fontWeight:
+                    active ? FontWeight.w700 : FontWeight.w400,
+                color: active
+                    ? const Color(0xFFC8A96B)
+                    : Colors.grey[400],
               ),
             ),
           ],
