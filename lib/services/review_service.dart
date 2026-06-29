@@ -44,6 +44,27 @@ class ReviewService {
     }
   }
 
+  Future<List<ReviewModel>> getMyAllReviews() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return [];
+
+      final response = await _supabase
+          .from('reviews')
+          .select('*, places(name, photo_url)')
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+
+      return (response as List)
+          .map((json) => ReviewModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      debugPrint('🚨 Error GET My All Reviews: $e');
+      return [];
+    }
+  }
+
+
   Future<void> createReview({
     required String placeId,
     required int rating,

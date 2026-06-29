@@ -7,6 +7,8 @@ class ReviewModel {
   final DateTime createdAt;
   final String? userName;
   final String? userAvatarUrl;
+  final String? placeName;
+  final String? placePhotoUrl;
 
   ReviewModel({
     required this.id,
@@ -17,6 +19,8 @@ class ReviewModel {
     required this.createdAt,
     this.userName,
     this.userAvatarUrl,
+    this.placeName,
+    this.placePhotoUrl,
   });
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +37,8 @@ class ReviewModel {
       // Jika null (seperti ulasan manual Anda sebelumnya), baru pakai 'Pengunjung'
       userName: json['user_name']?.toString() ?? 'Pengunjung', 
       userAvatarUrl: null,
+      placeName: json['places']?['name']?.toString() ?? json['place']?['name']?.toString(),
+      placePhotoUrl: json['places']?['photo_url']?.toString() ?? json['place']?['photo_url']?.toString(),
     );
   }
 
@@ -55,6 +61,8 @@ class ReviewModel {
     DateTime? createdAt,
     String? userName,
     String? userAvatarUrl,
+    String? placeName,
+    String? placePhotoUrl,
   }) {
     return ReviewModel(
       id: id ?? this.id,
@@ -65,6 +73,8 @@ class ReviewModel {
       createdAt: createdAt ?? this.createdAt,
       userName: userName ?? this.userName,
       userAvatarUrl: userAvatarUrl ?? this.userAvatarUrl,
+      placeName: placeName ?? this.placeName,
+      placePhotoUrl: placePhotoUrl ?? this.placePhotoUrl,
     );
   }
 }

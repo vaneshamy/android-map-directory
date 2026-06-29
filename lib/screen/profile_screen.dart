@@ -6,6 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'landingpage_screen.dart';
 import 'login_screen.dart';
+import 'edit_profile_screen.dart';
+import 'my_reviews_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -287,7 +289,15 @@ SliverToBoxAdapter _buildHeader() {
               _MenuItem(
                 icon: Icons.person_outline_rounded,
                 label: 'Edit Profil',
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const EditProfileScreen()),
+                  ).then((_) {
+                    if (mounted) setState(() {});
+                  });
+                },
               ),
               _MenuItem(
                 icon: Icons.favorite_border_rounded,
@@ -298,8 +308,14 @@ SliverToBoxAdapter _buildHeader() {
               _MenuItem(
                 icon: Icons.star_border_rounded,
                 label: 'Ulasan Saya',
-                badge: '0',
-                onTap: () {},
+                badge: null,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => const MyReviewsScreen()),
+                  );
+                },
               ),
               _MenuItem(
                 icon: Icons.history_rounded,
