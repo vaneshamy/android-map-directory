@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import 'favorite_screen.dart';
 import 'landingpage_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
@@ -14,6 +15,7 @@ class ProfileScreen extends StatefulWidget {
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
+  
 }
 
 class _ProfileScreenState extends State<ProfileScreen>
@@ -23,6 +25,28 @@ class _ProfileScreenState extends State<ProfileScreen>
   late Animation<Offset> _slideAnim;
 
   final _client = Supabase.instance.client;
+    int _favCount = 0;  
+    Future<void> _loadFavoriteCount() async {
+  final user = _client.auth.currentUser;
+  if (user == null) return;
+
+  try {
+    final data = await _client
+        .from('favorites')
+        .select('id')
+        .eq('user_id', user.id);
+
+    if (mounted) {
+      setState(() {
+        _favCount = data.length;
+      });
+    }
+
+    debugPrint("Jumlah Favorit = $_favCount");
+  } catch (e) {
+    debugPrint("Error load favorite count: $e");
+  }
+}
 
   @override
   void initState() {
@@ -43,7 +67,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     ).animate(CurvedAnimation(
       parent: _enterCtrl,
       curve: Curves.easeOutCubic,
+      
     ));
+    _loadFavoriteCount(); 
   }
 
   @override
@@ -299,12 +325,21 @@ SliverToBoxAdapter _buildHeader() {
                   });
                 },
               ),
-              _MenuItem(
-                icon: Icons.favorite_border_rounded,
-                label: 'Museum Favorit',
-                badge: '0',
-                onTap: () {},
-              ),
+              // Di _buildLoggedInContent(), menu item Favorit
+_MenuItem(
+  icon: Icons.favorite_border_rounded,
+  label: 'Museum Favorit',
+  badge: _favCount.toString(),
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const FavoriteScreen(),
+      ),
+    ).then((_) => _loadFavoriteCount());
+  },
+),
+              
               _MenuItem(
                 icon: Icons.star_border_rounded,
                 label: 'Ulasan Saya',
