@@ -448,13 +448,6 @@ class _HomeTab extends StatelessWidget {
   }) async {
     final user = Supabase.instance.client.auth.currentUser;
 
-    if (user == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-      return;
-    }
 
     showDialog(
       context: context,

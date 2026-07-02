@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/review_model.dart';   
 import '../services/review_service.dart'; 
+import 'login_screen.dart';
 
 class ReviewSection extends StatefulWidget {
   final String placeId;
@@ -48,7 +49,16 @@ class _ReviewSectionState extends State<ReviewSection> {
   }
 
   void _openReviewForm({ReviewModel? existing}) {
-    showModalBottomSheet(
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+    return;
+  }
+  showModalBottomSheet(
+
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

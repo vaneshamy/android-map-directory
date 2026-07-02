@@ -73,11 +73,8 @@ Future<void> _login() async {
       } else {
         _showSnackBar('Selamat Datang di Museum Nusantara!');
         
-        // Menuju Dashboard User Biasa (Home Screen Direktori)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
+      
+       Navigator.pop(context, true);
       }
 
     } on AuthException catch (e) {

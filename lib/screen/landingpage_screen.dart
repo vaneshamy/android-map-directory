@@ -55,13 +55,12 @@ class _LandingPageScreenState extends State<LandingPageScreen>
   }
 
   void _enter() {
-  final user = Supabase.instance.client.auth.currentUser;
   Navigator.of(context).pushReplacement(
     PageRouteBuilder(
       transitionDuration: const Duration(milliseconds: 500),
       pageBuilder: (_, anim, __) => FadeTransition(
         opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
-        child: user != null ? const HomeScreen() : const LoginScreen(),
+        child: const HomeScreen(),
       ),
     ),
   );
