@@ -9,6 +9,7 @@ import 'landingpage_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'my_reviews_screen.dart';
+import 'activity_history_screen.dart'; // Tambahan Import untuk navigasi layar riwayat
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -355,7 +356,15 @@ _MenuItem(
               _MenuItem(
                 icon: Icons.history_rounded,
                 label: 'Riwayat Kunjungan',
-                onTap: () {},
+                onTap: () {
+                  // TAMBAHAN FUNGSI NAVIGASI YANG ANDA MINTA
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ActivityHistoryScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),

@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../services/favorite_service.dart';
+import '../services/activity_service.dart'; // Tambahan Import untuk mencatat aktivitas
 import 'map_screen.dart';
 import 'review_section.dart';
 import 'login_screen.dart';
@@ -106,13 +107,13 @@ class _DetailScreenState extends State<DetailScreen> {
   Future<void> _toggleFavorite() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
-  final result = await Navigator.push<bool>(
-    context,
-    MaterialPageRoute(builder: (_) => const LoginScreen()),
-  );
-  if (result != true || !mounted) return;
-  // setelah login, lanjut toggle favorit
-}
+      final result = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      if (result != true || !mounted) return;
+      // setelah login, lanjut toggle favorit
+    }
     if (placeId.isEmpty) return;
 
     setState(() => _favLoading = true);
@@ -145,27 +146,34 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // ── Buka peta rute ────────────────────────────────────────────
   void _openMapRoute() async {
-  if (widget.place == null) return;
-  final user = Supabase.instance.client.auth.currentUser;
-  if (user == null) {
-    final result = await Navigator.push<bool>(
+    if (widget.place == null) return;
+    final user = Supabase.instance.client.auth.currentUser;
+    
+    if (user == null) {
+      final result = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      if (result != true) return; // login dibatalkan
+      // setelah login, langsung buka peta
+    }
+
+    // TAMBAHAN BARU: Catat aktivitas navigasi sebelum pindah halaman
+    if (placeId.isNotEmpty) {
+      ActivityService().recordNavigation(placeId);
+    }
+
+    if (!mounted) return;
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
-    if (result != true) return; // login dibatalkan
-    // setelah login, langsung buka peta
-  }
-  if (!mounted) return;
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => MapScreen(
-        place: widget.place,
-        userLocation: widget.userLocation,
+      MaterialPageRoute(
+        builder: (_) => MapScreen(
+          place: widget.place,
+          userLocation: widget.userLocation,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
